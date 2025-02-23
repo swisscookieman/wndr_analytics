@@ -76,9 +76,6 @@
             line-height: 1.6;
             color: #444;
             font-size: 1.1em;
-        }
-        .blog-body {
-
             position: relative;
         }
 
@@ -93,13 +90,6 @@
         .blog-list li {
             margin-bottom: 10px;
             position: relative;
-        }
-
-        .blog-list li::before {
-            font-weight: bold;
-            display: inline-block; 
-            width: 1em;
-            margin-left: -1em;
         }
 
         .table-container {
@@ -130,7 +120,6 @@
         tr:hover {
             background-color: #f5f5f5;
         }
-
 
         th.sortable {
             position: relative;
@@ -173,11 +162,35 @@
         .rating-below-0-7 { color: #ff4242 !important; }
         .no-rating { color: #f4f4f4 !important; }
 
-        @media (max-width: 768px) {
-            .blog-list {
-                padding-left: 20px;
-            }
+        .event-list {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
         }
+
+        .event-item {
+            padding: 15px;
+            margin: 10px 0;
+            background-color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .event-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .back-button {
+            color: #007bff;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
         @media (max-width: 768px) {
             nav {
                 padding: 15px 20px;
@@ -201,148 +214,77 @@
                 margin-top: 160px;
             }
 
-            .dropdown {
-                position: relative;
-                display: inline-block;
-            }
-
-            .dropbtn {
-                background: none;
-                border: none;
-                color: #333;
-                font-weight: 500;
-                padding: 0;
-                cursor: pointer;
-                font-size: inherit;
-            }
-
-            .dropdown-content {
-                display: none;
-                position: absolute;
-                background-color: #f9f9f9;
-                min-width: 160px;
-                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-                z-index: 1;
-            }
-
-            .dropdown-content a {
-                color: black;
-                padding: 12px 16px;
-                text-decoration: none;
-                display: block;
-            }
-
-            .dropdown-content a:hover {
-                background-color: #f1f1f1;
-            }
-
-            .dropdown:hover .dropdown-content {
-                display: block;
-            }
-
             .blog-title {
                 font-size: 2em;
             }
-            
         }
-        .dropdown {
+        /*tr.average-row {
+                background-color: #2196F3 !important;
+                color: white !important;
+            }
+
+        tr.average-row td {
+                background-color: inherit !important;
+            }
+
+        tr.average-row:hover {
+                background-color: #1976D2 !important;
+            }
+            
+        tr:last-child {
+                background-color: #2196F3 !important;
+            }
+
+        tr:last-child td {
+                color: white !important;
+                background-color: inherit !important;
+            }*/
+        /* Add third column highlighting */
+        td:nth-child(3),
+        th:nth-child(3) {
+            background-color: #007bff !important;
+            color: white;
             position: relative;
-            display: inline-block;
         }
 
-        .dropbtn {
-            background: none;
-            border: none;
-            color: #333;
-            font-weight: 500;
-            padding: 0;
+        td:nth-child(1) {
+            color: #616161;
+            position: relative;
+        }
+
+        /* Remove adjacent borders to prevent white gaps */
+        td:nth-child(3),
+        th:nth-child(3) {
+            border-left: 1px solid #007bff !important;
+            border-right: 1px solid #007bff !important;
+        }
+
+        /* Fix potential rounding issues */
+        td:nth-child(3) {
+            border-radius: 0 !important;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
             cursor: pointer;
-            font-size: inherit;
-            transition: color 0.3s;
-        }
-
-        .dropbtn:hover {
-            color: #007bff;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #ffffff;
-            min-width: 160px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            z-index: 1001;
-            top: 100%;
-            left: -20px;
-        }
-
-        .dropdown-content a {
-            color: #333;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            transition: background-color 0.2s;
-        }
-
-        .dropdown-content a:hover {
-            background-color: #f8f9fa;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        /* Mobile fixes */
-        @media (max-width: 768px) {
-            .dropdown {
-                width: 100%;
-            }
-            
-            .dropbtn {
-                width: 100%;
-                text-align: left;
-                padding: 8px 0;
-            }
-            
-            .dropdown-content {
-                position: static;
-                box-shadow: none;
-                width: 100%;
-            }
         }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const contentDiv = document.querySelector('.content');
-            const navLinks = document.querySelectorAll('.nav-links a');
-            let currentData = [];
-            let currentView = '';
-            let historyStack = [];
-        
-            async function loadData() {
+            
+            async function loadEventData(filename) {
                 try {
-                    const [euResponse, naResponse] = await Promise.all([
-                        fetch('EU.csv'),
-                        fetch('NA.csv')
-                    ]);
-                    
-                    const euCSV = await euResponse.text();
-                    const naCSV = await naResponse.text();
-                    
-                    euData = csvToArray(euCSV).map(p => ({...p, Region: 'EU'}));
-                    naData = csvToArray(naCSV).map(p => ({...p, Region: 'NA'}));
-                    
-                    allData = [...euData, ...naData];
-                    
-                    // Debug: Check loaded data
-                    console.log('EU Data:', euData);
-                    console.log('NA Data:', naData);
-                    console.log('All Events:', getEvents());
+                    const response = await fetch(`events/${filename}`);
+                    const csv = await response.text();
+                    return csvToArray(csv);
                 } catch (error) {
-                    console.error('Error loading data:', error);
+                    console.error('Error loading event data:', error);
+                    return [];
                 }
             }
-        
+
             function csvToArray(csv) {
                 const lines = csv.split('\n');
                 const headers = lines[0].split(',').map(h => h.trim());
@@ -357,22 +299,89 @@
 
             function getRatingClass(value) {
                 const num = parseFloat(value);
-                
-                if (num > 1.3) return 'rating-above-1-3';
-                if (num >= 1.20) return 'rating-1-2';
-                if (num >= 1.10) return 'rating-1-1';
-                if (num >= 1.05) return 'rating-1-05';
-                if (num >= 0.95) return 'rating-0-95';
-                if (num >= 0.9) return 'rating-0-9';
-                if (num >= 0.8) return 'rating-0-8';
-                if (num >= 0.7) return 'rating-0-7';
-                if (num < 0.7) return 'rating-below-0-7';
-                if (num === null || num === undefined || num === "") {
-                    num = "N/A"; 
-                    return "no-rating"; 
+                //if (num > 1.3) return 'rating-above-1-3';
+                //if (num >= 1.20) return 'rating-1-2';
+                //if (num >= 1.10) return 'rating-1-1';
+                //if (num >= 1.05) return 'rating-1-05';
+                //if (num >= 0.95) return 'rating-0-95';
+                //if (num >= 0.9) return 'rating-0-9';
+                //if (num >= 0.8) return 'rating-0-8';
+                //if (num >= 0.7) return 'rating-0-7';
+                //if (num < 0.7) return 'rating-below-0-7';
+                return 'rating-0-95';
+            }
+
+            window.renderEventList = renderEventList;
+
+            async function renderEventList() {
+                try {
+                    const response = await fetch('events/');
+                    const text = await response.text();
+                    const parser = new DOMParser();
+                    const html = parser.parseFromString(text, 'text/html');
+                    const files = Array.from(html.querySelectorAll('a'))
+                        .map(a => a.href.split('/').pop())
+                        .filter(f => f.endsWith('.csv'))
+                        .map(f => f.replace(/_/g, ' ').replace('.csv', ''))
+                        .map(f => f.replace(/\b\w/g, c => c.toUpperCase()));
+
+                    const htmlContent = `
+                        <div class="event-list">
+                            <h2>All Events</h2>
+                            ${files.map(file => `
+                                <div class="event-item" data-file="${file.toLowerCase().replace(/ /g, '_')}.csv">
+                                    ${file}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    contentDiv.innerHTML = htmlContent;
+                    addEventListeners();
+                } catch (error) {
+                    console.error('Error loading event list:', error);
                 }
             }
-            
+
+            async function renderEventDetail(filename) {
+                const data = await loadEventData(filename);
+                const eventName = filename.replace(/_/g, ' ').replace('.csv', '').replace(/\b\w/g, c => c.toUpperCase());
+                const headers = data.length > 0 ? Object.keys(data[0]) : [];
+
+                const html = `
+                    <div class="back-button" onclick="renderEventList()">← Back to Events</div>
+                    <div class="table-container">
+                        <h2>${eventName}</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    ${headers.map(h => `<th data-type="${isNaN(data[0][h]) ? 'text' : 'number'}">${h}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(row => `
+                                    <tr>
+                                        ${headers.map(h => `
+                                            <td class="${getRatingClass(row[h])}" data-rating="${row[h]}">
+                                                ${row[h]}
+                                            </td>
+                                        `).join('')}
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                contentDiv.innerHTML = html;
+                addSorting();
+                
+                // Auto-sort by third column descending
+                const thirdColumnHeader = document.querySelector('th:nth-child(3)');
+                if (thirdColumnHeader && thirdColumnHeader.dataset.type === 'number') {
+                    const event = new Event('click');
+                    thirdColumnHeader.dispatchEvent(event);
+                }
+            }
+
             function addSorting() {
                 document.querySelectorAll('th').forEach(header => {
                     header.classList.add('sortable');
@@ -381,250 +390,46 @@
                         const columnIndex = Array.from(header.parentElement.children).indexOf(header);
                         const isNumeric = header.dataset.type === 'number';
                         const currentIsAsc = header.classList.contains('sorted-asc');
-                        
-                        // Clear existing sorting classes
+
                         table.querySelectorAll('th').forEach(h => {
                             h.classList.remove('sorted-asc', 'sorted-desc');
                         });
 
-                        // Determine new sort direction
-                        const newDirection = currentIsAsc ? 'desc' : 'asc';
+                        // Default to descending sort for initial load
+                        const newDirection = currentIsAsc ? 'desc' : 'desc';
                         header.classList.add(`sorted-${newDirection}`);
 
-                        // Sort rows
                         const tbody = table.querySelector('tbody');
                         const rows = Array.from(tbody.querySelectorAll('tr'));
                         
                         rows.sort((a, b) => {
                             const aValue = a.children[columnIndex].textContent;
                             const bValue = b.children[columnIndex].textContent;
-                            
-                            if (isNumeric) {
-                                return sortNumbers(aValue, bValue, newDirection);
-                            }
-                            return sortStrings(aValue, bValue, newDirection);
+                            return isNumeric ? 
+                                (bValue - aValue) :  // Force descending for numbers
+                                bValue.localeCompare(aValue);  // Force descending for text
                         });
 
-                        // Re-insert sorted rows
+                        tbody.innerHTML = '';
                         rows.forEach(row => tbody.appendChild(row));
                     });
                 });
             }
 
-            function sortNumbers(a, b, direction) {
-                const numA = parseFloat(a) || 0;
-                const numB = parseFloat(b) || 0;
-                return direction === 'asc' ? numA - numB : numB - numA;
-            }
-
-            function sortStrings(a, b, direction) {
-                return direction === 'asc' 
-                    ? a.localeCompare(b) 
-                    : b.localeCompare(a);
-            }
-
-            function getUniqueTeams() {
-                return [...new Set(allData.map(item => item.Team))];
-            }
-        
-            function getEvents() {
-                // Get ALL unique event names from ALL players
-                const allEvents = new Set();
-                allData.forEach(player => {
-                    Object.keys(player).forEach(key => {
-                        if (key.includes('Open')) allEvents.add(key);
-                    });
-                });
-                return Array.from(allEvents);
-            }
-        
-            function renderView(viewType, filterValue = null) {
-                historyStack.push({ viewType, filterValue });
-                
-                if (viewType === 'player') {
-                    renderPlayerView();
-                } else if (viewType === 'team') {
-                    filterValue ? renderTeamDetail(filterValue) : renderTeamView();
-                } else if (viewType === 'event') {
-                    filterValue ? renderEventDetail(filterValue) : renderEventView();
-                }
-            }
-        
-
-            function renderPlayerView(region) {
-                const data = region === 'EU' ? euData : naData;
-                const regionPrefix = region.toUpperCase(); // Ensure uppercase matching
-                const regionEvents = getEvents().filter(e => 
-                    e.toUpperCase().startsWith(regionPrefix + ' OPEN ')
-                );
-
-                const html = `
-                    <div class="table-container">
-                        <h2>${region} Players</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th data-type="text">Player</th>
-                                    <th data-type="text">Team</th>
-                                    ${regionEvents.map(e => `<th data-type="number">${e}</th>`).join('')}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.map(player => `
-                                    <tr>
-                                        <td>${player.Player}</td>
-                                        <td>${player.Team}</td>
-                                        ${regionEvents.map(e => `
-                                            <td class="${getRatingClass(player[e])}" data-rating="${player[e]}">
-                                                ${player[e] || 'N/A'}
-                                            </td>
-                                        `).join('')}
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-                contentDiv.innerHTML = html;
-                addSorting();
-            }
-        
-            function renderTeamView() {
-                const teams = getUniqueTeams();
-                const html = `
-                    <div class="team-list">
-                        <h2>All Teams</h2>
-                        ${teams.map(team => `
-                            <div class="team-item" data-team="${team}">
-                                ${team}
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                contentDiv.innerHTML = html;
-                addTeamListeners();
-            }
-        
-            function renderTeamDetail(teamName) {
-                const teamPlayers = allData.filter(p => p.Team === teamName);
-                const events = getEvents();
-                
-                const html = `
-                    <div class="back-button" onclick="renderView('team')">← Back to Teams</div>
-                    <div class="table-container">
-                        <h2>${teamName} Players</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th data-type="text">Player</th>
-                                    ${events.map(e => `<th data-type="number">${e}</th>`).join('')}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${teamPlayers.map(player => `
-                                    <tr>
-                                        <td>${player.Player}</td>
-                                        ${events.map(e => `
-                                            <td class="${getRatingClass(player[e])}" data-rating="${player[e]}">
-                                                ${player[e]}
-                                            </td>
-                                        `).join('')}
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-                contentDiv.innerHTML = html;
-                addSorting();
-            }
-        
-            function renderEventView() {
-                const events = getEvents();
-                const html = `
-                    <div class="event-list">
-                        <h2>All Events</h2>
-                        ${events.map(event => `
-                            <div class="event-item" data-event="${event}">
-                                ${event}
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                contentDiv.innerHTML = html;
-                addEventListeners();
-            }
-        
-            function renderEventDetail(eventName) {
-                const html = `
-                    <div class="back-button" onclick="renderView('event')">← Back to Events</div>
-                    <div class="table-container">
-                        <h2>${eventName} Ratings</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th data-type="text">Player</th>
-                                    <th data-type="text">Team</th>
-                                    <th data-type="number">Rating</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${allData.map(player => `
-                                    <tr>
-                                        <td>${player.Player}</td>
-                                        <td>${player.Team}</td>
-                                        <td class="${getRatingClass(player[eventName])}" data-rating="${player[eventName]}">
-                                            ${player[eventName]}
-                                        </td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-                contentDiv.innerHTML = html;
-                addSorting();
-            }
-        
-            function addTeamListeners() {
-                document.querySelectorAll('.team-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        const teamName = item.dataset.team;
-                        renderView('team', teamName);
-                    });
-                });
-            }
-        
             function addEventListeners() {
                 document.querySelectorAll('.event-item').forEach(item => {
                     item.addEventListener('click', () => {
-                        const eventName = item.dataset.event;
-                        renderView('event', eventName);
+                        const filename = item.dataset.file;
+                        renderEventDetail(filename);
                     });
                 });
             }
-            
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const viewType = this.textContent.toLowerCase();
-                    
-                    if (viewType === 'eu players') {
-                        renderPlayerView('EU');
-                    } else if (viewType === 'na players') {
-                        renderPlayerView('NA');
-                    } else if (viewType === 'by team') {
-                        renderTeamView();
-                    } else if (viewType === 'by event') {
-                        renderEventView();
-                    }
-                });
+
+            // Initial load
+            document.querySelector('.nav-links a[href="#2025-events"]').addEventListener('click', (e) => {
+                e.preventDefault();
+                renderEventList();
             });
-        
-            loadData();
-        
-            // Expose renderView to global scope for back buttons
-            window.renderView = renderView;
         });
     </script>
 </head>
@@ -632,27 +437,18 @@
     <nav>
         <img src="wndr_analytics.png" alt="Website Logo" class="logo">
         <div class="nav-links">
-            <div class="dropdown">
-                <button class="dropbtn">By Player ▼</button>
-                <div class="dropdown-content">
-                    <a href="#eu-players">EU Players</a>
-                    <a href="#na-players">NA Players</a>
-                </div>
-            </div>
-            <a href="#by-team">By Team</a>
-            <a href="#by-event">By Event</a>
-            <a href="https://x.com/Project_WNDR" target="_blank" style="color: #1DA1F2;">Follow Us</a>
+            <a href="#2025-events">2025 Events</a>
+            <a href="https://x.com/Project_WNDR" target="_blank" class="external-link" style="color: #1DA1F2;">Follow Us</a>
         </div>
     </nav>
 
     <div class="content">
         <div class="blog-post">
-            <h1 class="blog-title">Introducing Rating 1.0 and rOffDef</h1>
+            <h1 class="blog-title">Introducing Rating 1.0 to Rocket League</h1>
             <img src="post1.png" alt="Blog Post Image" class="blog-image">
             <p class="blog-body">
-                <strong>Team WNDR's analytics team is proud to introduce our two new metrics: Rating 1.0 and rOffDef !</strong>
-                We have been trying to create a rating system for Rocket League similar to those of hltv.org and vlr.gg for Counter-Strike and Valorant respectively. This is why we're proud to present the initial iteration of this system, which we're simply calling Rating 1.0.
-                Rating 1.0, or r1 for short, uses the following factors:
+                <strong>Team WNDR's analytics team is proud to introduce our new metric: Rating 1.0</strong>
+                We have developed a rating system for Rocket League similar to those used in other esports. Our Rating 1.0 (r1) incorporates:
                 <br>
                 <ul class="blog-list">
                     <li>Goals per Game</li>
@@ -662,16 +458,16 @@
                     <li>Win percentage</li>
                     <li>Shooting % (goals/shots)</li>
                 </ul>
+            
             </p>
+            
             <p class="blog-body">
-                Put very simply, each statistic is calculated a rating, where 1.0 is the average rating and 1.3, 0.7 are the extremes. A player's final rating is a weighted average of all the different ratings.
-                Rating 1.0 will be calculated and available for every RLCS Open Qualifier Main Event (NA and EU), Major and World Championship on this website and on <a href="https://x.com/Project_WNDR" target="_blank">@Project_WNDR</a> on X, along with many additional analytics.
-                As we continue to work on improving r1, we're looking to add new indicators to the calculation and modifying weights to create the best indicator. We'll keep our formulas secret <i>for now</i>, but we're keen on making them public once we're fully content with results.
-                <br><br>
-                rOffDef is an additional analytic we're rolling out to measure a player's offensivity and defensivity. Based on multiple stats like time behind/ahead of ball, time offensive/defensive half, time offensive/neutral/defensive third and more, it's made to show which players are key, defensive strongholds and which are offensive virtuosos.
-                The closer a player's rating is to 0.00, the more defensive he is. The closer a player's rating is to 1.00, the more offensive he is. We're also looking to make this rating evolve, and we'll be rolling it our slower.
-                <br><br>
-                We'd love to find some new talent to join our goal of revolutioning RL analytics - if you think you're that profile, DM us or join our discord: <a href="https://discord.gg/aedCTaCxd5" target="_blank">https://discord.gg/aedCTaCxd5</a>.
+                For each metric, each player is given a rating around 1.0 based on how they compare to the event-specific average. For example, a player with a 0.70 gpg will get a 1.15 rGoal rating, if the average goal per game is around 0,6.
+            A player's rating is a weighted average of all the metric's ratings. We evaluate a decent player to have a rating above 1.0, while an excellent player should have a rating above 1.2. Any player with a rating under 0.8 is a clear sign of under-performance.
+            <br><br>
+            Our rating system provides a comprehensive evaluation of player performance, with 1.0 being the average rating. Explore event-specific ratings using the "2025 Events" tab above. As we collect more data, we will shift the averages to <strong>global averages</strong>, in order for ratings to be comparable between regions. Currently, a 1.40 in EU is miles ahead of a 1.40 in SSA, for example.
+            <br><br>
+            Join our analytics community: <a href="https://discord.gg/aedCTaCxd5" target="_blank">Discord Server</a>
             </p>
         </div>
     </div>
