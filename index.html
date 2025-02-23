@@ -273,10 +273,20 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const contentDiv = document.querySelector('.content');
-            
-            async function loadEventData(filename) {
+
+            const events_list = [
+                { url: "https://raw.githubusercontent.com/swisscookieman/wndr_analytics/refs/heads/main/events/APAC_open_1.csv", name: "APAC Open 1" },
+                { url: "https://raw.githubusercontent.com/swisscookieman/wndr_analytics/refs/heads/main/events/APAC_open_2.csv", name: "APAC Open 2" },
+                { url: "https://raw.githubusercontent.com/swisscookieman/wndr_analytics/refs/heads/main/events/EU_open_1.csv", name: "EU Open 1" },
+                { url: "https://raw.githubusercontent.com/swisscookieman/wndr_analytics/refs/heads/main/events/EU_open_2.csv", name: "EU Open 2" },
+                { url: "https://raw.githubusercontent.com/swisscookieman/wndr_analytics/refs/heads/main/events/NA_open_1.csv", name: "NA Open 1" },
+                { url: "https://raw.githubusercontent.com/swisscookieman/wndr_analytics/refs/heads/main/events/NA_open_2.csv", name: "NA Open 2" }
+                // Add more events here
+            ];
+
+            async function loadEventData(url) {
                 try {
-                    const response = await fetch(`/events/${filename}`);
+                    const response = await fetch(url);
                     const csv = await response.text();
                     return csvToArray(csv);
                 } catch (error) {
@@ -314,38 +324,24 @@
             window.renderEventList = renderEventList;
 
             async function renderEventList() {
-                try {
-                    const response = await fetch('/events/');
-                    const text = await response.text();
-                    console.log(text);
-                    const parser = new DOMParser();
-                    const html = parser.parseFromString(text, 'text/html');
-                    const files = Array.from(html.querySelectorAll('a'))
-                        .map(a => a.href.split('/').pop())
-                        .filter(f => f.endsWith('.csv'))
-                        .map(f => f.replace(/_/g, ' ').replace('.csv', ''))
-                        .map(f => f.replace(/\b\w/g, c => c.toUpperCase()));
-
-                    const htmlContent = `
-                        <div class="event-list">
-                            <h2>All Events</h2>
-                            ${files.map(file => `
-                                <div class="event-item" data-file="${file.toLowerCase().replace(/ /g, '_')}.csv">
-                                    ${file}
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                    contentDiv.innerHTML = htmlContent;
-                    addEventListeners();
-                } catch (error) {
-                    console.error('Error loading event list:', error);
-                }
+                const htmlContent = `
+                    <div class="event-list">
+                        <h2>2025 Events</h2>
+                        ${events_list.map(event => `
+                            <div class="event-item" 
+                                data-url="${event.url}"
+                                data-name="${event.name}">
+                                ${event.name}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                contentDiv.innerHTML = htmlContent;
+                addEventListeners();
             }
 
-            async function renderEventDetail(filename) {
-                const data = await loadEventData(filename);
-                const eventName = filename.replace(/_/g, ' ').replace('.csv', '').replace(/\b\w/g, c => c.toUpperCase());
+            async function renderEventDetail(url, eventName) {
+                const data = await loadEventData(url);
                 const headers = data.length > 0 ? Object.keys(data[0]) : [];
 
                 const html = `
@@ -420,12 +416,12 @@
             function addEventListeners() {
                 document.querySelectorAll('.event-item').forEach(item => {
                     item.addEventListener('click', () => {
-                        const filename = item.dataset.file;
-                        renderEventDetail(filename);
+                        const url = item.dataset.url;
+                        const name = item.dataset.name;
+                        renderEventDetail(url, name);
                     });
                 });
             }
-
             // Initial load
             document.querySelector('.nav-links a[href="#2025-events"]').addEventListener('click', (e) => {
                 e.preventDefault();
