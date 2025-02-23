@@ -1,7 +1,0 @@
-{
-  "scripts": {
-    "build": "node generate-manifest.js && vite build",
-    "prebuild": "npm run generate-manifest",
-    "generate-manifest": "node generate-manifest.js"
-  }
-}
